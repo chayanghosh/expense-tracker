@@ -100,7 +100,7 @@ public class ExpenseController {
 		return ResponseEntity.ok(expenses);
 	}
 	
-	@GetMapping("paged/{userId}")
+	@GetMapping("/paged/{userId}")
 	public ResponseEntity<Page<Expense>> getSortedExpense(@PathVariable Long userId,
 			@RequestParam(defaultValue= "0") int page,
 			@RequestParam(defaultValue= "5") int size,
@@ -109,8 +109,20 @@ public class ExpenseController {
 		Page<Expense> expenses = expenseRepo.findUserById(userId,pageable);
 		return ResponseEntity.ok(expenses);
 		
+		//http://localhost:8081/expense/paged/1?page=0&size=5&sortBy=createdAt
 	}
-		
+	
+	@GetMapping("/search/{userId}")
+	public ResponseEntity<List<Expense>> searchExpenses(
+	        @PathVariable Long userId,
+	        @RequestParam String keyword) {
+	    
+	    List<Expense> results = expenseRepo.searchByKeyword(userId, keyword);
+	    return ResponseEntity.ok(results);
+	    
+	    //http://localhost:8081/expense/search/1?keyword=Groceries
+	}
+
 	
 	
 	@DeleteMapping("/delete/{expenseId}")
