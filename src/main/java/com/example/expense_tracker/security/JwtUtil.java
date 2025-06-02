@@ -1,7 +1,6 @@
 package com.example.expense_tracker.security;
 
 import java.util.Date;
-import java.util.HashMap;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -24,7 +23,6 @@ public class JwtUtil {
 	public String generateToken(UserDetails userDetails) {
 		return Jwts.builder()
 				.setSubject(userDetails.getUsername())
-				.setClaims(new HashMap<String,Object>())
 				.setIssuedAt(new Date(System.currentTimeMillis()))
 				.setExpiration(new Date(System.currentTimeMillis() + jwtExpiration))
 				.signWith(Keys.hmacShaKeyFor(jwtSecret.getBytes()),SignatureAlgorithm.HS256)
@@ -41,7 +39,7 @@ public class JwtUtil {
 	}
 	
 	public boolean isTokenExpired(String token) {
-		return extractAllClaims(token).getExpiration().after(new Date());
+		return extractAllClaims(token).getExpiration().before(new Date());
 	}
 	
 	public String extractUsername(String token) {
