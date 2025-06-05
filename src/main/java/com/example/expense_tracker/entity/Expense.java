@@ -29,9 +29,7 @@ public class Expense {
 	
 	@Column(name = "created_at")
 	private LocalDateTime createdAt;
-	
-	private Date date;
-	
+		
 	// @OneToMany(mappedBy = "user") //for bidirectional mapping
 	@ManyToOne
 	@JoinColumn(name="user_id")

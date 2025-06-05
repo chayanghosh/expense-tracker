@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -12,6 +11,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.expense_tracker.DTO.ExpenseDTO;
 import com.example.expense_tracker.entity.Expense;
 import com.example.expense_tracker.entity.User;
+import com.example.expense_tracker.exception.ResourceNotFoundException;
 import com.example.expense_tracker.repository.ExpenseRepository;
 import com.example.expense_tracker.repository.UserRepository;
 
@@ -40,13 +41,13 @@ public class ExpenseController {
 	
 	@PostMapping("/post")
 	public ResponseEntity<String> addExpense(@RequestBody ExpenseDTO expenseDTO){
-		User user = userRepo.findAll().get(0);
+		String email = SecurityContextHolder.getContext().getAuthentication().getName();
+		User user = userRepo.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("User not found"));
 		
 		Expense expense = new Expense();
 		expense.setName(expenseDTO.getName());
 		expense.setCategory(expenseDTO.getCategory());
 		expense.setAmount(expenseDTO.getAmount());
-		expense.setDate(expenseDTO.getDate());
 		expense.setUser(user);
 		expense.setCreatedAt(LocalDateTime.now());
 		expenseRepo.save(expense);
@@ -55,15 +56,11 @@ public class ExpenseController {
 	
 	@PutMapping("/update/{expenseId}")
 	public ResponseEntity<String> updateExpense(@RequestBody ExpenseDTO expenseDto, @PathVariable Long expenseId){
-		Optional<Expense> expenseOpt = expenseRepo.findById(expenseId);
-		if(!expenseOpt.isPresent()) {
-			return ResponseEntity.notFound().build();
-		}
-		Expense expense = expenseOpt.get();
+		Expense expense = expenseRepo.findById(expenseId).orElseThrow(() -> new ResourceNotFoundException("Invalid ID"));
+		
 		expense.setName(expenseDto.getName());
 		expense.setCategory(expenseDto.getCategory());
 		expense.setAmount(expenseDto.getAmount());
-		expense.setDate(expenseDto.getDate());
 		expense.setCreatedAt(LocalDateTime.now());
 		expenseRepo.save(expense);
 		return ResponseEntity.ok("Updated");
@@ -128,10 +125,18 @@ public class ExpenseController {
 	@DeleteMapping("/delete/{expenseId}")
 	public ResponseEntity<String> deleteExpense(@PathVariable Long expenseId){
 		if(!expenseRepo.findById(expenseId).isPresent()) {
-			return ResponseEntity.notFound().build();
+			throw new ResourceNotFoundException("Please enter valid ID");
+			//return ResponseEntity.notFound().build();
 		}
 		expenseRepo.deleteById(expenseId);
 		return ResponseEntity.ok("Deleted succesfully");
 	}
 	
 }
+
+//@GetMapping("/{id}")
+//public Expense getExpense(@PathVariable Long id) {
+//    return expenseRepository.findById(id)
+//        .orElseThrow(() -> new ResourceNotFoundException("Expense not found with id " + id));
+//}
+
