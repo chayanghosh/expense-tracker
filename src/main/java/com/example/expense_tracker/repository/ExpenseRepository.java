@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import com.example.expense_tracker.entity.Expense;
 
@@ -24,6 +25,9 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long> {
 		       "(LOWER(e.name) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
 		       "OR LOWER(e.category) LIKE LOWER(CONCAT('%', :keyword, '%')))")
 	List<Expense> searchByKeyword(Long userId, String keyword);
+
+	@Query("SELECT SUM(e.amount) FROM Expense e WHERE e.user.id = :userId")
+	Double getTotalExpenseByUser(@Param("userId") Long userId);
 	
 
 }

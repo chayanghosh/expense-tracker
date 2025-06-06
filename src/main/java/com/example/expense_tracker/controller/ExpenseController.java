@@ -10,8 +10,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -28,6 +29,7 @@ import com.example.expense_tracker.entity.User;
 import com.example.expense_tracker.exception.ResourceNotFoundException;
 import com.example.expense_tracker.repository.ExpenseRepository;
 import com.example.expense_tracker.repository.UserRepository;
+import com.example.expense_tracker.security.MyUserDetails;
 
 @RestController
 @RequestMapping("/expense")
@@ -39,32 +41,38 @@ public class ExpenseController {
 	@Autowired
 	private UserRepository userRepo;
 	
+	
 	@PostMapping("/post")
-	public ResponseEntity<String> addExpense(@RequestBody ExpenseDTO expenseDTO){
-		String email = SecurityContextHolder.getContext().getAuthentication().getName();
-		User user = userRepo.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("User not found"));
+	public ResponseEntity<String> addExpense(@RequestBody ExpenseDTO expenseDTO, @AuthenticationPrincipal MyUserDetails userdetails){
+		String username = userdetails.getUsername();
+		User loggedInUser = userRepo.findByEmail(username).orElseThrow(() -> new ResourceNotFoundException("User not found"));
 		
 		Expense expense = new Expense();
 		expense.setName(expenseDTO.getName());
 		expense.setCategory(expenseDTO.getCategory());
 		expense.setAmount(expenseDTO.getAmount());
-		expense.setUser(user);
+		expense.setUser(loggedInUser);
 		expense.setCreatedAt(LocalDateTime.now());
 		expenseRepo.save(expense);
 		return ResponseEntity.ok("Expense added!");
 	}
 	
 	@PutMapping("/update/{expenseId}")
-	public ResponseEntity<String> updateExpense(@RequestBody ExpenseDTO expenseDto, @PathVariable Long expenseId){
+	public ResponseEntity<?> updateExpense(@AuthenticationPrincipal MyUserDetails userDetails, @RequestBody ExpenseDTO expenseDto, @PathVariable Long expenseId){
+		String username = userDetails.getUsername();
 		Expense expense = expenseRepo.findById(expenseId).orElseThrow(() -> new ResourceNotFoundException("Invalid ID"));
 		
-		expense.setName(expenseDto.getName());
-		expense.setCategory(expenseDto.getCategory());
-		expense.setAmount(expenseDto.getAmount());
-		expense.setCreatedAt(LocalDateTime.now());
-		expenseRepo.save(expense);
-		return ResponseEntity.ok("Updated");
+		if(username.equals(expense.getUser().getEmail())) {
+			expense.setName(expenseDto.getName());
+			expense.setCategory(expenseDto.getCategory());
+			expense.setAmount(expenseDto.getAmount());
+			expenseRepo.save(expense);
+			return ResponseEntity.ok("Updated");
+		}else {
+			return ResponseEntity.status(HttpStatusCode.valueOf(403)).body("access prohibited");
+		}
 	}
+	
 	
 	@GetMapping("/user/{userId}")
 	public ResponseEntity<List<Expense>> getExpensesByUser(@PathVariable Long userId) {
@@ -120,7 +128,14 @@ public class ExpenseController {
 	    //http://localhost:8081/expense/search/1?keyword=Groceries
 	}
 
-	
+	@GetMapping("/summary/total")
+	public ResponseEntity<?> getTotalExpense(@AuthenticationPrincipal MyUserDetails userdetails){
+		String username = userdetails.getUsername();
+		User loggedInUser = userRepo.findByEmail(username).orElseThrow(() -> new ResourceNotFoundException("User not found"));
+		
+		Double total = expenseRepo.getTotalExpenseByUser(loggedInUser.getId());
+		return ResponseEntity.ok("Total Expense: "+total);
+	}
 	
 	@DeleteMapping("/delete/{expenseId}")
 	public ResponseEntity<String> deleteExpense(@PathVariable Long expenseId){
