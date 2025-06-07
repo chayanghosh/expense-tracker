@@ -1,7 +1,6 @@
 package com.example.expense_tracker.entity;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
