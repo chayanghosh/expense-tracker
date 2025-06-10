@@ -21,8 +21,12 @@ import com.example.expense_tracker.entity.Expense;
 import com.example.expense_tracker.security.MyUserDetails;
 import com.example.expense_tracker.services.ExpenseService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 @RestController
 @RequestMapping("/expense")
+@Tag(name="Expense APIs", description = "CRUD operation for expenses")
 public class ExpenseController {
 
     @Autowired
@@ -43,6 +47,7 @@ public class ExpenseController {
     }
 
     @GetMapping("/filter")
+    @Operation(summary = "Show the expenses of given time interval")
     public ResponseEntity<List<Expense>> getExpensesByDate(@AuthenticationPrincipal MyUserDetails userdetails,
                                                            @RequestParam(required = false) String sDate,
                                                            @RequestParam(required = false) String eDate) {

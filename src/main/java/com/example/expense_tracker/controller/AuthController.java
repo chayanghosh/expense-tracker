@@ -13,8 +13,11 @@ import com.example.expense_tracker.DTO.LoginDTO;
 import com.example.expense_tracker.DTO.SignupDTO;
 import com.example.expense_tracker.services.AuthService;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 @RestController
 @RequestMapping("/auth")
+@Tag(name="User APIs", description = "CRUD operation for users")
 public class AuthController {
 
     @Autowired
