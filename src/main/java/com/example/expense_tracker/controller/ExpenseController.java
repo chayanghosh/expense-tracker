@@ -33,12 +33,14 @@ public class ExpenseController {
     private ExpenseService expenseService;
 
     @PostMapping("/post")
+    @Operation(summary = "Add expense")
     public ResponseEntity<String> addExpense(@RequestBody ExpenseDTO dto, @AuthenticationPrincipal MyUserDetails userDetails) {
         String result = expenseService.addExpense(dto, userDetails.getUsername());
         return ResponseEntity.ok(result);
     }
 
     @PutMapping("/update/{expenseId}")
+    @Operation(summary = "Update expense")
     public ResponseEntity<String> updateExpense(@PathVariable Long expenseId,
                                                 @RequestBody ExpenseDTO dto,
                                                 @AuthenticationPrincipal MyUserDetails userDetails) {
@@ -55,11 +57,13 @@ public class ExpenseController {
     }
 
     @GetMapping("/user/{userId}/category/{category}")
+    @Operation(summary = "Show the expenses of specific category")
     public ResponseEntity<List<Expense>> getExpenseByCategory(@PathVariable Long userId, @PathVariable String category) {
         return ResponseEntity.ok(expenseService.getExpenseByCategory(userId, category));
     }
 
     @GetMapping("/paged/{userId}")
+    @Operation(summary = "Page view")
     public ResponseEntity<Page<Expense>> getSortedExpense(@PathVariable Long userId,
                                                           @RequestParam(defaultValue = "0") int page,
                                                           @RequestParam(defaultValue = "5") int size,
@@ -68,27 +72,22 @@ public class ExpenseController {
     }
 
     @GetMapping("/search/{userId}")
+    @Operation(summary = "Search")
     public ResponseEntity<List<Expense>> searchExpenses(@PathVariable Long userId,
                                                         @RequestParam String keyword) {
         return ResponseEntity.ok(expenseService.searchExpenses(userId, keyword));
     }
 
     @GetMapping("/summary/total")
+    @Operation(summary = "Total expense of user")
     public ResponseEntity<String> getTotalExpense(@AuthenticationPrincipal MyUserDetails userDetails) {
         Double total = expenseService.getTotalExpense(userDetails.getUsername());
         return ResponseEntity.ok("Total Expense: " + total);
     }
 
     @DeleteMapping("/delete/{expenseId}")
+    @Operation(summary = "Delete an expense")
     public ResponseEntity<String> deleteExpense(@PathVariable Long expenseId) {
         return ResponseEntity.ok(expenseService.deleteExpense(expenseId));
     }
 }
-
-
-//@GetMapping("/{id}")
-//public Expense getExpense(@PathVariable Long id) {
-//    return expenseRepository.findById(id)
-//        .orElseThrow(() -> new ResourceNotFoundException("Expense not found with id " + id));
-//}
-

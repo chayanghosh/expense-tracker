@@ -13,6 +13,7 @@ import com.example.expense_tracker.DTO.LoginDTO;
 import com.example.expense_tracker.DTO.SignupDTO;
 import com.example.expense_tracker.services.AuthService;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
@@ -24,6 +25,7 @@ public class AuthController {
     private AuthService authService;
 
     @PostMapping("/signup")
+    @Operation(summary = "Signup")
     public ResponseEntity<String> signup(@RequestBody SignupDTO signupDTO) {
         try {
             String result = authService.signup(signupDTO);
@@ -34,6 +36,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
+    @Operation(summary = "Login")
     public ResponseEntity<String> login(@RequestBody LoginDTO loginDTO) {
         try {
             String token = authService.login(loginDTO);
