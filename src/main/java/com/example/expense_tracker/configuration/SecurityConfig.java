@@ -52,7 +52,8 @@ public class SecurityConfig {
 		                "/swagger-ui/**",
 		                "/swagger-ui.html",
 		                "/swagger-resources/**",
-		                "/webjars/**").permitAll()
+		                "/webjars/**",
+		                "/actuator/**").permitAll()
 				.requestMatchers(HttpMethod.GET,"/expense/**").hasAnyRole("USER","ADMIN")
 				.requestMatchers(HttpMethod.DELETE,"/expense/**").hasRole("ADMIN")
 				.anyRequest().authenticated())
