@@ -1,33 +1,33 @@
 version: "3.8"
 
 services:
-  mysql:
-    image: mysql:8
-    container_name: expense-mysql
+  postgres:
+    image: postgres:15
+    container_name: expense-postgres
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: expense_tracker
+      POSTGRES_DB: expense_tracker
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
     ports:
-      - "3307:3306"
+      - "5432:5432"
     volumes:
-      - mysql-data:/var/lib/mysql
+      - postgres-data:/var/lib/postgresql/data
 
   app:
     build: .
     container_name: expense-app
     restart: always
     depends_on:
-      - mysql
+      - postgres
     ports:
       - "8081:8081"
     environment:
       SPRING_PROFILES_ACTIVE: dev
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/expense_tracker
-      SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: root
-      SPRING_JPA_HIBERNATE_DDL_AUTO: update
-      JWT_SECRET: a8f3b9c7d1e2f4a6b5c8d7e9f0a1b2c3
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/expense_tracker
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      JWT_SECRET: dev_secret_key
 
 volumes:
-  mysql-data:
+  postgres-data:
