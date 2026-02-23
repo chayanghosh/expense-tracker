@@ -27,7 +27,7 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/expense_tracker
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
-      JWT_SECRET: dev_secret_key
+      JWT_SECRET: 9f3c6b8e1a4d2f7c5e9b0a6d3c1e8f2b7a4c9d6e1f0b3a8c5d7e2f9a1b6c3d4
 
 volumes:
   postgres-data:
