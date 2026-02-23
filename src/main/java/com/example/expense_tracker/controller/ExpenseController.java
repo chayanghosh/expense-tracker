@@ -56,26 +56,26 @@ public class ExpenseController {
         return ResponseEntity.ok(expenseService.getExpensesByDate(userdetails.getUserId(), sDate, eDate));
     }
 
-    @GetMapping("/user/{userId}/category/{category}")
+    @GetMapping("/user/category/{category}")
     @Operation(summary = "Show the expenses of specific category")
-    public ResponseEntity<List<Expense>> getExpenseByCategory(@PathVariable Long userId, @PathVariable String category) {
-        return ResponseEntity.ok(expenseService.getExpenseByCategory(userId, category));
+    public ResponseEntity<List<Expense>> getExpenseByCategory(@AuthenticationPrincipal MyUserDetails userDetails, @PathVariable String category) {
+        return ResponseEntity.ok(expenseService.getExpenseByCategory(userDetails.getUserId(), category));
     }
 
-    @GetMapping("/paged/{userId}")
+    @GetMapping("/paged")
     @Operation(summary = "Page view")
-    public ResponseEntity<Page<Expense>> getSortedExpense(@PathVariable Long userId,
+    public ResponseEntity<Page<Expense>> getSortedExpense(@AuthenticationPrincipal MyUserDetails userDetails,
                                                           @RequestParam(defaultValue = "0") int page,
                                                           @RequestParam(defaultValue = "5") int size,
                                                           @RequestParam(defaultValue = "createdAt") String sortBy) {
-        return ResponseEntity.ok(expenseService.getSortedExpenses(userId, page, size, sortBy));
+        return ResponseEntity.ok(expenseService.getSortedExpenses(userDetails.getUserId(), page, size, sortBy));
     }
 
-    @GetMapping("/search/{userId}")
+    @GetMapping("/search")
     @Operation(summary = "Search")
-    public ResponseEntity<List<Expense>> searchExpenses(@PathVariable Long userId,
+    public ResponseEntity<List<Expense>> searchExpenses(@AuthenticationPrincipal MyUserDetails userDetails,
                                                         @RequestParam String keyword) {
-        return ResponseEntity.ok(expenseService.searchExpenses(userId, keyword));
+        return ResponseEntity.ok(expenseService.searchExpenses(userDetails.getUserId(), keyword));
     }
 
     @GetMapping("/summary/total")
